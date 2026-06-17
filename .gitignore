@@ -1,0 +1,14 @@
+venv/
+models/
+raw_data/
+sft_data/
+dpo_data/
+eval_data/
+adapter_weights/
+eval_outputs/
+logs/
+.DS_Store
+__pycache__/
+*.safetensors
+*.gguf
+*.jsonl
