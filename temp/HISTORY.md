@@ -17,5 +17,8 @@
 - **Spot Check:** Created and ran `scripts/3_spot_check.py` to randomly sample 10 emails from the cleaned JSONL and verify that formatting and cleaning logic performed exactly as expected.
 - **Git Sync:** Committed all data extraction and cleaning scripts (and `PLAN.md` updates) to the GitHub repository.
 
----
-*Next up: Phase 1.5 - Generating reverse prompts via Kaggle Notebook for the 2,000 cleaned emails.*
+## Phase 1.5: Kaggle Reverse Prompting
+- **Kaggle Automation Setup:** Configured Kaggle API using a provided access token, installed the `kaggle` CLI package, and successfully authenticated.
+- **Dataset Upload:** Created a Kaggle dataset containing our 2,000 rows (`aeslc_cleaned.jsonl`) under `rudhrakoul/aeslc-cleaned-reverse-prompting`.
+- **Notebook Launch:** Wrote a script to load `Qwen/Qwen2.5-14B-Instruct` in 4-bit quantization using `bitsandbytes` and `accelerate`. The script applies the chat template and reverse prompts each email to generate a single imperative sentence.
+- **Execution:** Pushed the script to Kaggle as a GPU-enabled notebook (`rudhrakoul/aeslc-reverse-prompting-qwen2-5-14b`). The notebook is currently running in the cloud to generate the `sft_data.jsonl` file.
