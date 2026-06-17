@@ -82,7 +82,14 @@ Write a script that randomly samples 10 emails from the cleaned file and prints 
 ---
 
 ### 1.5 — Generate reverse prompts via Kaggle Notebook
-Upload the cleaned JSONL file (which contains exactly 2,000 rows) to Kaggle as a dataset. Create a Kaggle Notebook using the `transformers` library to load a large Qwen model (e.g., Qwen2.5-14B or similar available on Kaggle GPUs) to generate a single imperative sentence describing what the email is trying to accomplish. The system prompt should instruct the model to reply with only that sentence and nothing else. Run the notebook to process all 2,000 emails and save the result as a new JSONL file with both a `prompt` field and an `email` field per row. Download the resulting file back to the local SFT data folder. This should take a realistic runtime (e.g. 15-30 mins depending on GPU) given the cap.
+Upload the cleaned JSONL file (which contains exactly 2,000 rows) to Kaggle as a dataset. Create a Kaggle Notebook using the `transformers` library on a 2x T4 GPU environment to load `Qwen2.5-14B-Instruct` (in 4-bit quantization). 
+
+Key prompt generation constraints:
+1. **Few-Shot Examples**: Use 2-3 concrete few-shot examples in the system prompt rather than just negative constraints. This pattern-matches the desired format more reliably.
+2. **Dense Instruction Phrasing**: The generated single-sentence imperative prompt must capture specific details from the email (recipient role, concrete ask, urgency, tone) rather than generic instructions like "Write an email to X".
+3. **Batched Generation**: Implement batched generation (e.g., via HuggingFace tokenizer left-padding and custom loop) to process the 2,000 rows efficiently (targeting ~10-15 minutes runtime).
+
+Run the notebook to process all 2,000 emails and save the result as a new JSONL file with both a `prompt` field and an `email` field per row. Download the resulting file back to the local SFT data folder.
 
 **Verify:** Count the output lines — should match the 2,000 file count.
 
