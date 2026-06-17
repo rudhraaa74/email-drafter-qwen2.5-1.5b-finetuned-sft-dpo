@@ -57,12 +57,10 @@ def main():
     input_path = "raw_data/aeslc_raw.jsonl"
     output_path = "raw_data/aeslc_cleaned.jsonl"
     
-    kept = 0
+    valid_emails = []
     discarded = 0
     
-    with open(input_path, 'r', encoding='utf-8') as fin, \
-         open(output_path, 'w', encoding='utf-8') as fout:
-        
+    with open(input_path, 'r', encoding='utf-8') as fin:
         for row_str in fin:
             row = json.loads(row_str)
             raw_body = row.get('email_body', '')
@@ -71,15 +69,21 @@ def main():
             word_count = len(cleaned_body.split())
             
             if 15 <= word_count <= 300:
-                out_row = {"email": cleaned_body}
-                fout.write(json.dumps(out_row) + "\n")
-                kept += 1
+                valid_emails.append(cleaned_body)
             else:
                 discarded += 1
                 
+    random.seed(42)
+    sampled_emails = random.sample(valid_emails, min(2000, len(valid_emails)))
+    
+    with open(output_path, 'w', encoding='utf-8') as fout:
+        for email in sampled_emails:
+            fout.write(json.dumps({"email": email}) + "\n")
+                
     print(f"Cleaning complete.")
-    print(f"Emails kept: {kept}")
-    print(f"Emails discarded: {discarded}")
+    print(f"Valid emails found: {len(valid_emails)}")
+    print(f"Emails discarded (length filter): {discarded}")
+    print(f"Emails saved (capped at 2000): {len(sampled_emails)}")
 
 if __name__ == '__main__':
     main()

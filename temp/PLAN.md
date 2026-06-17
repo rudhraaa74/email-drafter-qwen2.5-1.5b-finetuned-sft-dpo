@@ -68,9 +68,9 @@ Print the first three rows of the raw JSONL file in a readable format to underst
 ---
 
 ### 1.3 — Strip metadata and filter by word count
-Write a script that reads the raw JSONL, removes forwarded and replied-to headers, removes metadata lines (To, From, Date, Subject, CC, and X- headers), truncates emails at the first line that contains legal boilerplate or confidentiality notices, and discards any email with fewer than 15 or more than 300 words. Save the cleaned emails to a new JSONL file with a single `email` field per row.
+Write a script that reads the raw JSONL, removes forwarded and replied-to headers, removes metadata lines (To, From, Date, Subject, CC, and X- headers), truncates emails at the first line that contains legal boilerplate or confidentiality notices, and discards any email with fewer than 15 or more than 300 words. Finally, take a random sample capped at 2,000 rows (using a fixed random seed for reproducibility) and save the cleaned emails to a new JSONL file with a single `email` field per row.
 
-**Verify:** Count the output file lines. Expect between 1,200 and 2,500 rows. If the count is below 1,000, the filter is too aggressive — loosen the word count bounds.
+**Verify:** Count the output file lines. Expect exactly 2,000 rows (or fewer if the dataset had fewer valid rows).
 
 ---
 
@@ -82,9 +82,9 @@ Write a script that randomly samples 10 emails from the cleaned file and prints 
 ---
 
 ### 1.5 — Generate reverse prompts via Kaggle Notebook
-Upload the cleaned JSONL file to Kaggle as a dataset. Create a Kaggle Notebook using the `transformers` library to load a large Qwen model (e.g., Qwen2.5-14B or similar available on Kaggle GPUs) to generate a single imperative sentence describing what the email is trying to accomplish. The system prompt should instruct the model to reply with only that sentence and nothing else. Run the notebook to process all emails and save the result as a new JSONL file with both a `prompt` field and an `email` field per row. Download the resulting file back to the local SFT data folder.
+Upload the cleaned JSONL file (which contains exactly 2,000 rows) to Kaggle as a dataset. Create a Kaggle Notebook using the `transformers` library to load a large Qwen model (e.g., Qwen2.5-14B or similar available on Kaggle GPUs) to generate a single imperative sentence describing what the email is trying to accomplish. The system prompt should instruct the model to reply with only that sentence and nothing else. Run the notebook to process all 2,000 emails and save the result as a new JSONL file with both a `prompt` field and an `email` field per row. Download the resulting file back to the local SFT data folder. This should take a realistic runtime (e.g. 15-30 mins depending on GPU) given the cap.
 
-**Verify:** Count the output lines — should match the cleaned file count.
+**Verify:** Count the output lines — should match the 2,000 file count.
 
 ---
 
