@@ -1,0 +1,42 @@
+[{"stream_name":"stdout","time":4.822139258,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.7/60.7 MB 31.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":4.854323391,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 389.2/389.2 kB 25.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":5.019709455,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.2/12.2 MB 90.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stderr","time":9.501007058,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":9.501054708,"data":"dask-cuda 26.2.0 requires cuda-core==0.3.*, but you have cuda-core 1.0.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":9.501059434,"data":"dask-cuda 26.2.0 requires numba-cuda\u003c0.23.0,\u003e=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":9.50106317,"data":"distributed-ucxx-cu12 0.48.0 requires numba-cuda[cu12]\u003c0.23.0,\u003e=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":9.501066538,"data":"cuml-cu12 26.2.0 requires numba\u003c0.62.0,\u003e=0.60.0, but you have numba 0.65.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":9.501070072,"data":"cuml-cu12 26.2.0 requires numba-cuda[cu12]\u003c0.23.0,\u003e=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":9.501073271,"data":"ucxx-cu12 0.48.0 requires numba-cuda[cu12]\u003c0.23.0,\u003e=0.22.1, but you have numba-cuda 0.30.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":9.501076331,"data":"cudf-cu12 26.2.1 requires numba\u003c0.62.0,\u003e=0.60.0, but you have numba 0.65.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":9.501079513,"data":"cudf-cu12 26.2.1 requires numba-cuda[cu12]\u003c0.23.0,\u003e=0.22.2, but you have numba-cuda 0.30.2 which is incompatible.\n"}
+,{"stream_name":"stdout","time":32.035409043,"data":"Loading model...\n"}
+,{"stream_name":"stderr","time":32.299137054,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":35.025381708,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":35.025419776,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":35.025428674,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":35.025432285,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":35.025435534,"data":"    \n"}
+,{"stream_name":"stderr","time":35.025438641,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":35.025441759,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":35.025445152,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":35.025448339,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":35.025451457,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":35.025454583,"data":"    \n"}
+,{"stream_name":"stderr","time":35.025457595,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":35.025751791,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":35.025777434,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":35.025783753,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":35.025790954,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":35.025793777,"data":"\n"}
+,{"stream_name":"stderr","time":35.025795979,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":166.896548027,"data":"\rFetching 8 files:   0%|          | 0/8 [00:00\u003c?, ?it/s]\rFetching 8 files:  12%|█▎        | 1/8 [02:05\u003c14:41, 125.86s/it]\rFetching 8 files:  25%|██▌       | 2/8 [02:06\u003c05:13, 52.18s/it] \rFetching 8 files: 100%|██████████| 8/8 [02:06\u003c00:00, 15.81s/it]\n"}
+,{"stream_name":"stderr","time":188.91681756,"data":"\rLoading weights:   0%|          | 0/579 [00:00\u003c?, ?it/s]\rLoading weights:   0%|          | 1/579 [00:00\u003c00:00, 6195.43it/s, Materializing param=lm_head.weight]\rLoading weights:   0%|          | 1/579 [00:00\u003c00:00, 3401.71it/s, Materializing param=lm_head.weight]\rLoading weights:   0%|          | 2/579 [00:14\u003c1:07:38,  7.03s/it, Materializing param=lm_head.weight]\rLoading weights:   0%|          | 2/579 [00:14\u003c1:07:38,  7.03s/it, Materializing param=model.embed_tokens.weight]\rLoading weights:   0%|          | 2/579 [00:14\u003c1:07:38,  7.03s/it, Materializing param=model.embed_tokens.weight]\rLoading weights:   1%|          | 3/579 [00:20\u003c1:04:00,  6.67s/it, Materializing param=model.embed_tokens.weight]\rLoading weights:   1%|          | 3/579 [00:20\u003c1:04:00,  6.67s/it, Materializing param=model.layers.0.input_layernorm.weight]\rLoading weights:   1%|          | 3/579 [00:20\u003c1:04:00,  6.67s/it, Materializing param=model.layers.0.input_layernorm.weight]\rLoading weights:   1%|          | 4/579 [00:20\u003c1:03:53,  6.67s/it, Materializing param=model.layers.0.mlp.down_proj.weight]  \rLoading weights:   1%|          | 4/579 [00:20\u003c1:03:53,  6.67s/it, Materializing param=model.layers.0.mlp.down_proj.weight]Error named symbol not found at line 62 in file /src/csrc/ops.cu\n"}
+,{"stream_name":"stderr","time":189.202716321,"data":"Segmentation fault (core dumped)\n"}
+,{"stream_name":"stderr","time":191.473171036,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":191.473220285,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":191.719821037,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":191.719856681,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":192.349777773,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":193.600156762,"data":"[NbConvertApp] Writing 291120 bytes to __results__.html\n"}
+]

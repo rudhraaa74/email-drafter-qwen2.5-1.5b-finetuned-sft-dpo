@@ -1,0 +1,19 @@
+{
+  "id": "rudhrakoul/aeslc-reverse-prompting-qwen2-5-14b",
+  "title": "AESLC Reverse Prompting Qwen2.5 14B",
+  "code_file": "generate_prompts.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "accelerator": "GPU_T4_2X",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "machine_shape": "",
+  "dataset_sources": [
+    "rudhrakoul/aeslc-cleaned-reverse-prompting"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

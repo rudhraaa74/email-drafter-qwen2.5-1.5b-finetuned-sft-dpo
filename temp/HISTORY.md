@@ -21,4 +21,7 @@
 - **Kaggle Automation Setup:** Configured Kaggle API using a provided access token, installed the `kaggle` CLI package, and successfully authenticated.
 - **Dataset Upload:** Created a Kaggle dataset containing our 2,000 rows (`aeslc_cleaned.jsonl`) under `rudhrakoul/aeslc-cleaned-reverse-prompting`.
 - **Notebook Launch:** Wrote a script to load `Qwen/Qwen2.5-14B-Instruct` in 4-bit quantization using `bitsandbytes` and `accelerate`. The script applies the chat template and reverse prompts each email to generate a single imperative sentence.
-- **Execution:** Pushed the script to Kaggle as a GPU-enabled notebook (`rudhrakoul/aeslc-reverse-prompting-qwen2-5-14b`). The notebook is currently running in the cloud to generate the `sft_data.jsonl` file.
+- **Pivot to Gemini API:** Due to extreme Kaggle resource constraints/limits (out-of-memory and slow generation), we abandoned the Kaggle Notebook approach.
+- **Local Generation Script:** We wrote `generate_dataset_gemini.py` and `test_gemini.py` to hit the Gemini API directly using `gemma-4-26b-a4b-it`. 
+- **Robust Processing:** The script was refactored to process prompts in batches of 2 to optimize for the 15 RPM free tier limit. Implemented `tenacity` exponential backoff to handle 503/429 network and API errors resiliently. 
+- **Completion:** After a few network hiccups, the script successfully finished generating all 1,972 valid prompts. The final dataset is saved as `dataset_with_prompts.jsonl`.
