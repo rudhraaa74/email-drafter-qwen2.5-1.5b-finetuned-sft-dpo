@@ -1,0 +1,25 @@
+# MLX-LM LoRA SFT Sanity Test Configuration
+model: "models/Qwen2.5-1.5B-Instruct"
+data: "sft_data"
+train: true
+seed: 42
+
+# Optimization
+learning_rate: 2e-5
+batch_size: 1
+grad_accumulation_steps: 4
+iters: 421
+val_batches: 10
+
+# Memory Management
+max_seq_length: 1024
+grad_checkpoint: true
+
+# Logging & Checkpointing
+steps_per_report: 10
+steps_per_eval: 421
+save_every: 421
+adapter_path: "adapters/sft_adapter"
+
+# LoRA Params
+lora_layers: 16

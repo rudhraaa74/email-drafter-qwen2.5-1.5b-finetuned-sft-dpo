@@ -13,7 +13,7 @@ Each subphase is a single unit of work with one clear deliverable. Complete it, 
 
 ---
 
-## Phase 0 — Environment Bootstrap
+## Phase 0 — Environment Bootstrap [DONE]
 
 ### 0.1 — Create a clean virtual environment
 Create a new Python virtual environment dedicated to this project and activate it.
@@ -51,51 +51,51 @@ Write a short script that loads `Qwen/Qwen2.5-1.5B-Instruct` using `mlx_lm.load(
 
 ---
 
-## Phase 1 — Data Curation
+## Phase 1 — Data Curation [PARTIALLY DONE]
 
-### 1.1 — Download the AESLC dataset
+### 1.1 — Download the AESLC dataset [DONE]
 Write a script that downloads the `aeslc` training split from HuggingFace using the `datasets` library and saves every row as a JSONL file in the raw data folder.
 
 **Verify:** Count the lines in the output file. Expect approximately 18,000 rows.
 
 ---
 
-### 1.2 — Inspect the raw data schema
+### 1.2 — Inspect the raw data schema [DONE]
 Print the first three rows of the raw JSONL file in a readable format to understand the field names and structure.
 
 **Verify:** Identify the exact field names for the email body and subject line. Note them — they will be referenced in the next step.
 
 ---
 
-### 1.3 — Strip metadata and filter by word count
+### 1.3 — Strip metadata and filter by word count [DONE]
 Write a script that reads the raw JSONL, removes forwarded and replied-to headers, removes metadata lines (To, From, Date, Subject, CC, and X- headers), truncates emails at the first line that contains legal boilerplate or confidentiality notices, and discards any email with fewer than 15 or more than 300 words. Finally, take a random sample capped at 2,000 rows (using a fixed random seed for reproducibility) and save the cleaned emails to a new JSONL file with a single `email` field per row.
 
 **Verify:** Count the output file lines. Expect exactly 2,000 rows (or fewer if the dataset had fewer valid rows).
 
 ---
 
-### 1.4 — Spot-check cleaned emails
+### 1.4 — Spot-check cleaned emails [DONE]
 Write a script that randomly samples 10 emails from the cleaned file and prints each one.
 
 **Verify (manual):** Read all 10. None should contain metadata headers, legal disclaimers, or obviously truncated sentences. If more than 2 out of 10 have issues, revisit the cleaning logic in 1.3.
 
 ---
 
-### 1.5 — Generate reverse prompts via Kaggle Notebook
-Upload the cleaned JSONL file (which contains exactly 2,000 rows) to Kaggle as a dataset. Create a Kaggle Notebook using the `transformers` library on a 2x T4 GPU environment to load `Qwen2.5-14B-Instruct` (in 4-bit quantization). 
+### 1.5 — Generate reverse prompts via Gemini API [DONE]
+Write a Python script (`generate_dataset_gemini.py`) that hits the Gemini API directly using the `gemma-4-26b-a4b-it` model. 
 
 Key prompt generation constraints:
-1. **Few-Shot Examples**: Use 2-3 concrete few-shot examples in the system prompt rather than just negative constraints. This pattern-matches the desired format more reliably.
+1. **Few-Shot Examples**: Use concrete few-shot examples in the system prompt rather than just negative constraints. This pattern-matches the desired format more reliably.
 2. **Dense Instruction Phrasing**: The generated single-sentence imperative prompt must capture specific details from the email (recipient role, concrete ask, urgency, tone) rather than generic instructions like "Write an email to X".
-3. **Batched Generation**: Implement batched generation (e.g., via HuggingFace tokenizer left-padding and custom loop) to process the 2,000 rows efficiently (targeting ~10-15 minutes runtime).
+3. **Robust Batched Generation**: Implement batched generation (processing 2 emails per prompt) and `tenacity` exponential backoff to handle 503/429 network and API errors resiliently, respecting the 15 RPM free tier limit.
 
-Run the notebook to process all 2,000 emails and save the result as a new JSONL file with both a `prompt` field and an `email` field per row. Download the resulting file back to the local SFT data folder.
+Run the script locally to process all 2,000 emails and save the result as a new JSONL file (`dataset_with_prompts.jsonl`) with both a `prompt` field and an `email` field per row.
 
 **Verify:** Count the output lines — should match the 2,000 file count.
 
 ---
 
-### 1.6 — Spot-check generated prompts
+### 1.6 — Spot-check generated prompts [DONE]
 Write a script that randomly samples 5 rows from the prompts file and prints the prompt alongside the first 200 characters of the email.
 
 **Verify (manual):** Prompts should be specific and task-oriented (e.g. "Request approval for the revised budget before end of quarter") not vague (e.g. "Write an email"). If more than 1 in 5 are vague or generic, revise the system prompt in step 1.5 and regenerate.
@@ -116,53 +116,53 @@ Write a script that randomly samples exactly 100 rows from the prompts file usin
 
 ---
 
-## Phase 2 — SFT Training
+## Phase 2 — Base Model Evaluation [DONE]
 
-### 2.1 — Dry-run SFT for 1 iteration
-Run the `mlx_lm.lora` training command in SFT mode for exactly 1 iteration with a batch size of 2, pointing at the SFT data folder, and saving the adapter to a temporary dry-run path.
-
-**Verify:** The command completes without errors and prints a loss value. If you get an out-of-memory error, reduce batch size to 1.
-
----
-
-### 2.2 — Full SFT training run
-Run the full SFT training command for 600 iterations with a batch size of 4, a learning rate of 1e-4, reporting every 50 steps, evaluating on the validation set every 100 steps, saving the adapter to the SFT adapters folder, and piping all output to a log file.
-
-**Verify:** The adapter folder contains `adapter_config.json` and `adapters.safetensors`. Open the log file and confirm the validation loss at the end is lower than at the start. Expect the run to take 30–60 minutes on M1.
-
----
-
-### 2.3 — Smoke test the SFT adapter
-Write a short script that loads the base model with the SFT adapter attached and generates a response to a simple email prompt.
-
-**Verify (manual):** The output looks like a plausible short email. It does not loop, hallucinate, or produce garbage. Quality will be imperfect at this stage — that is expected.
-
----
-
-## Phase 3 — Baseline Evaluation
-
-### 3.1 — Define the slop word list and metric functions
+### 2.1 — Define the slop word list and metric functions
 Write a Python module (not a script — a reusable module) that defines two functions. The first, `slop_count`, takes a text string and counts how many banned phrases it contains. The banned list should include words like: delve, robust, leverage, synergy, utilize, cutting-edge, game-changer, innovative, paradigm, transformative, holistic, actionable, seamlessly, empower, foster, stakeholder, deliverable, bandwidth, circle back, touch base, moving forward, going forward, at the end of the day, it is worth noting, it is important to note, in conclusion, in summary, i hope this email finds you well, please do not hesitate. The second function, `burstiness`, takes a text string, splits it into sentences, computes the length of each sentence in words, and returns the standard deviation of those lengths as a measure of pacing variance.
 
 **Verify:** Run the module directly with a sample sentence that contains at least two slop phrases. Confirm `slop_count` returns 2 or more and `burstiness` returns a float.
 
 ---
 
-### 3.2 — Generate SFT baseline outputs for all 100 eval prompts
-Write a script that loads the base model with the SFT adapter, reads all 100 prompts from the eval file, generates one response per prompt at temperature 0.7 with a 300-token limit, and saves each prompt and its output to a JSONL file in the evals folder.
+### 2.2 — Generate base model outputs for all 100 eval prompts
+Write a script that loads the un-finetuned base model (`Qwen2.5-1.5B-Instruct`), reads all 100 prompts from the eval file, generates one response per prompt at temperature 0.7 with a 300-token limit, and saves each prompt and its output to a JSONL file in the evals folder (e.g., `base_eval_outputs.jsonl`).
 
 **Verify:** The output file has exactly 100 lines.
 
 ---
 
-### 3.3 — Score baseline outputs and save aggregate metrics
-Write a script that reads the baseline outputs file, runs both metric functions from 3.1 on every output, computes the mean slop count, mean burstiness, and mean word count across all 100 outputs, and saves a summary JSON file. The per-prompt scores should also be saved.
+### 2.3 — Score base model outputs and save aggregate metrics
+Write a script that reads the base evaluation outputs file, runs both metric functions from 2.1 on every output, computes the mean slop count, mean burstiness, and mean word count across all 100 outputs, and saves a summary JSON file. 
 
-**Verify:** The summary JSON file exists and is readable. Write down the `mean_slop_count` and `mean_burstiness` values — these are your baseline targets to beat after DPO.
+**Verify:** The summary JSON file exists and is readable. Write down the `mean_slop_count` and `mean_burstiness` values — this is your absolute "Base Baseline".
 
 ---
 
-## Phase 4 — Active DPO Data Collection
+## Phase 3 — SFT Training & Evaluation [DONE]
+
+### 3.1 — Dry-run SFT for 1 iteration
+Run the `mlx_lm.lora` training command in SFT mode for exactly 1 iteration with a batch size of 2, pointing at the SFT data folder, and saving the adapter to a temporary dry-run path.
+
+**Verify:** The command completes without errors and prints a loss value. If you get an out-of-memory error, reduce batch size to 1.
+
+---
+
+### 3.2 — Full SFT training run
+Run the full SFT training command for 600 iterations with a batch size of 4, a learning rate of 1e-4, reporting every 50 steps, evaluating on the validation set every 100 steps, saving the adapter to the SFT adapters folder, and piping all output to a log file.
+
+**Verify:** The adapter folder contains `adapter_config.json` and `adapters.safetensors`. Open the log file and confirm the validation loss at the end is lower than at the start. Expect the run to take 30–60 minutes on M1.
+
+---
+
+### 3.3 — Evaluate SFT Model
+Reuse the evaluation scripts from Phase 2. First, generate outputs for the 100 eval prompts using the base model *with the new SFT adapter loaded*. Save to `sft_eval_outputs.jsonl`. Then, score the outputs using the metric script.
+
+**Verify:** A new SFT summary JSON file is produced. Compare it to the base baseline to see how Supervised Fine-Tuning altered the slop count and burstiness.
+
+---
+
+## Phase 4 — Active DPO Data Collection [DONE]
 
 ### 4.1 — Generate 5 variants per eval prompt at high temperature
 Write a script that loads the base model with the SFT adapter and, for each of the 100 eval prompts, generates 5 different responses at temperature 0.85 to encourage stylistic variance. Save all variants grouped by prompt to a JSONL file in the DPO data folder.
@@ -187,7 +187,7 @@ Write a script that reads the completed DPO pairs file, shuffles the rows, split
 
 ---
 
-## Phase 5 — DPO Training
+## Phase 5 — DPO Training [DONE]
 
 ### 5.1 — Dry-run DPO for 1 iteration
 Run the `mlx_lm.lora` training command in DPO mode for exactly 1 iteration with a batch size of 1, pointing at the DPO data folder.
@@ -210,7 +210,7 @@ Write a short script that loads the base model with the DPO adapter and generate
 
 ---
 
-## Phase 6 — Post-Training Evaluation
+## Phase 6 — Post-Training Evaluation [DONE]
 
 ### 6.1 — Generate DPO outputs for all 100 eval prompts
 Reuse the generation script from 3.2, replacing the SFT adapter path with the DPO adapter path and the output filename with a new DPO-specific filename in the evals folder.
@@ -233,75 +233,11 @@ Write a script that reads both summary JSON files (SFT baseline and DPO final) a
 
 ---
 
-## Phase 7 — Adapter Fusion and Export
+### 6.4 — Evaluate Passive Voice Rate
+Write a script using an NLP tool (like spaCy or nltk) to analyze the outputs for passive voice usage and compare the base model vs. the final model.
 
-### 7.1 — Fuse DPO LoRA adapter into the base model
-Run the `mlx_lm.fuse` command pointing at the base model and the DPO adapter path, saving the merged weights to a new folder in the models directory.
-
-**Verify:** The output folder contains model weights and a config file.
+**Verify:** The final model should exhibit a lower passive voice rate than the baseline model, reflecting a more direct and active writing style.
 
 ---
 
-### 7.2 — Test the fused model without an adapter
-Write a short script that loads the fused model folder directly (no adapter path) and generates a response to a prompt.
 
-**Verify:** Output is coherent and matches the quality seen with the DPO adapter in 5.3. The adapter weights are now baked in.
-
----
-
-### 7.3 — Export to GGUF format
-Run `mlx_lm.fuse` again with the GGUF export flag and Q4_K_M quantization, saving to a separate models subfolder.
-
-**Verify:** The output folder contains a `.gguf` file. If the quantization flag is not available in your `mlx-lm` version, fuse to HuggingFace format first and note that you will need `llama.cpp` for the conversion step.
-
----
-
-### 7.4 — Load into Ollama and run a test prompt
-Create an Ollama `Modelfile` that points to the `.gguf` file and sets a brief system prompt describing the assistant's role. Run `ollama create` to register the model, then run `ollama run` with a test prompt.
-
-**Verify:** Ollama responds without error. The email output sounds natural and human-written. The model is now available for daily zero-latency use from the terminal.
-
----
-
-## Phase 8 — Ongoing Improvement Loop
-
-### 8.1 — Collect new prompts from real-world use
-As you use the model daily, keep a running list of prompts where the output felt too stiff, too verbose, or used a phrase you would not write yourself. Accumulate 20–50 such prompts before starting another improvement cycle.
-
----
-
-### 8.2 — Generate new variants and rank them
-Reuse the variant generation and ranking scripts from Phase 4 with the new prompts. Append new pairs to the existing DPO pairs file rather than replacing it.
-
----
-
-### 8.3 — Run another DPO pass
-Rebuild the DPO training split, run another 400-iteration DPO pass, and evaluate against the same 100 static eval prompts. Only fuse and redeploy if the metrics improve over the previous best.
-
----
-
-## Appendix — Metric Targets and Thresholds
-
-| Metric | What it measures | Direction to improve |
-|--------|-----------------|----------------------|
-| Mean slop count | Average banned phrases per email | Lower is better |
-| Mean burstiness | Std dev of sentence lengths | Higher is better (more varied pacing) |
-| Mean word count | Average email length | Stable (should not drift far from SFT baseline) |
-
----
-
-## Appendix — Troubleshooting Reference
-
-**Out of memory during training:** Halve the batch size. For DPO, try batch size 1 and close all other applications.
-
-**Loss spikes or goes NaN during training:** Lower the learning rate by 5×. For DPO specifically, increase beta to 0.2 to reduce the penalty magnitude.
-
-**Slop count did not decrease after DPO:** The chosen/rejected pairs lacked sufficient stylistic contrast. In the next ranking session, be more deliberate — chosen outputs should have zero slop phrases, rejected outputs should have at least one.
-
-**Burstiness did not increase after DPO:** The chosen emails you selected during ranking may have had uniformly short or uniformly long sentences. Prefer chosen outputs that mix short punchy sentences with longer explanatory ones.
-
-**GGUF export flag not available in mlx-lm:** Fuse the adapter into HuggingFace format first, then use `llama.cpp`'s conversion script to produce the GGUF file with Q4_K_M quantization.
-
-**Ollama Modelfile cannot find the GGUF file:** Use the full absolute path in the FROM directive, not a relative path.
-
-**Reverse prompt generation produces vague prompts:** The system prompt in step 1.5 is too permissive. Add explicit negative instructions such as "do not write vague prompts like write an email or send a message" and specify that the prompt must name the topic and the desired action.
